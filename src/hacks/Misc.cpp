@@ -6,7 +6,6 @@
  */
 
 #include "common.hpp"
-#include <unistd.h>
 #include <regex>
 #include <hacks/AntiAim.hpp>
 #include <settings/Bool.hpp>
@@ -698,7 +697,7 @@ CatCommand say_lines("say_lines", "Say with newlines (\\n)",
 CatCommand disconnect("disconnect", "Disconnect with custom reason",
                       [](const CCommand &args)
                       {
-                          auto *ch = (INetChannel *) g_IEngine->GetNetChannelInfo();
+                          auto ch = (INetChannel *) g_IEngine->GetNetChannelInfo();
                           if (!ch)
                               return;
                           std::string string = args.ArgS();
@@ -709,7 +708,7 @@ CatCommand disconnect("disconnect", "Disconnect with custom reason",
 CatCommand disconnect_vac("disconnect_vac", "Disconnect (fake VAC)",
                           []()
                           {
-                              auto *ch = (INetChannel *) g_IEngine->GetNetChannelInfo();
+                              auto ch = (INetChannel *) g_IEngine->GetNetChannelInfo();
                               if (!ch)
                                   return;
                               ch->Shutdown("VAC banned from secure server\n");

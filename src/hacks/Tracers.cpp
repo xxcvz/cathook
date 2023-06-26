@@ -131,7 +131,7 @@ void draw()
             std::optional<rgba_t> color;
             if (CE_INVALID(ent))
             {
-                if (curr_idx > g_IEngine->GetMaxClients() || !g_pPlayerResource->isAlive(curr_idx))
+                if (curr_idx > g_GlobalVars->maxClients || !g_pPlayerResource->isAlive(curr_idx))
                     continue;
                 if (g_pPlayerResource->GetTeam(curr_idx) == g_pLocalPlayer->team && !teammates)
                     continue;
@@ -147,7 +147,7 @@ void draw()
             {
                 if ((!RAW_ENT(ent)->IsDormant() && !ent->m_bAlivePlayer()) || !ent->m_vecDormantOrigin())
                     continue;
-                if (curr_idx <= g_IEngine->GetMaxClients() && !g_pPlayerResource->isAlive(curr_idx))
+                if (curr_idx <= g_GlobalVars->maxClients && !g_pPlayerResource->isAlive(curr_idx))
                     continue;
                 origin = *ent->m_vecDormantOrigin();
                 if (*buildings)
@@ -186,7 +186,7 @@ void draw()
 
             if (CE_INVALID(ent))
             {
-                if (ent->m_IDX > g_IEngine->GetMaxClients() || !g_pPlayerResource->isAlive(ent->m_IDX))
+                if (ent->m_IDX > g_GlobalVars->maxClients || !g_pPlayerResource->isAlive(ent->m_IDX))
                     continue;
                 if (g_pPlayerResource->GetTeam(ent->m_IDX) == g_pLocalPlayer->team && !teammates)
                     continue;
@@ -202,7 +202,7 @@ void draw()
             {
                 if ((!RAW_ENT(ent)->IsDormant() && !ent->m_bAlivePlayer()) || !ent->m_vecDormantOrigin())
                     continue;
-                if (ent->m_IDX <= g_IEngine->GetMaxClients() && !g_pPlayerResource->isAlive(ent->m_IDX))
+                if (ent->m_IDX <= g_GlobalVars->maxClients && !g_pPlayerResource->isAlive(ent->m_IDX))
                     continue;
                 origin = *ent->m_vecDormantOrigin();
                 if (*buildings)

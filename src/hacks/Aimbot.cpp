@@ -1155,7 +1155,7 @@ bool Aim(CachedEntity *entity)
     if (*silent && slow_aim == 0)
         g_pLocalPlayer->bUseSilentAngles = true;
     // Set tick count to targets (backtrack messes with this)
-    if (!ShouldBacktrack(entity) && *nolerp && entity->m_IDX <= g_IEngine->GetMaxClients())
+    if (!ShouldBacktrack(entity) && *nolerp && entity->m_IDX <= g_GlobalVars->maxClients)
     {
         auto ratio                   = std::clamp(cl_interp_ratio->GetFloat(), sv_client_min_interp_ratio->GetFloat(), sv_client_max_interp_ratio->GetFloat());
         auto lerptime                = std::max(cl_interp->GetFloat(), ratio / (sv_maxupdaterate ? sv_maxupdaterate->GetFloat() : cl_updaterate->GetFloat()));

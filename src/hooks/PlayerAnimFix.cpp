@@ -82,7 +82,7 @@ void CheckForSequenceChange_hook(int *_this, int *studiohdr, int sequence, bool 
 void LevelInit()
 {
     previous_simtimes.clear();
-    previous_simtimes.resize(g_IEngine->GetMaxClients());
+    previous_simtimes.resize(g_GlobalVars->maxClients);
 }
 
 static InitRoutine init(

@@ -485,7 +485,7 @@ static void cm()
     }
 
     lastent++;
-    if (lastent > g_IEngine->GetMaxClients())
+    if (lastent > g_GlobalVars->maxClients)
         lastent = 1;
 
     if (!follow_target)

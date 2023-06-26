@@ -855,12 +855,12 @@ bool stayNear()
     auto advance_count = selected_config.prefer_far ? MAX_STAYNEAR_CHECKS_RANGE : MAX_STAYNEAR_CHECKS_CLOSE;
 
     // Ensure it is in bounds and also wrap around
-    if (lowest_check_index > g_IEngine->GetMaxClients())
+    if (lowest_check_index > g_GlobalVars->maxClients)
         lowest_check_index = 0;
 
     int calls = 0;
     // Test all entities
-    for (int i = lowest_check_index; i <= g_IEngine->GetMaxClients(); ++i)
+    for (int i = lowest_check_index; i <= g_GlobalVars->maxClients; ++i)
     {
         if (calls >= advance_count)
             break;

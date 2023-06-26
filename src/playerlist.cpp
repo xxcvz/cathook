@@ -293,7 +293,7 @@ CatCommand pl_set_state("pl_set_state", "cat_pl_set_state [playername] [state] (
                             }
                             auto name = args.Arg(1);
                             int id    = -1;
-                            for (int i = 1; i <= g_IEngine->GetMaxClients(); ++i)
+                            for (int i = 1; i <= g_GlobalVars->maxClients; ++i)
                             {
                                 player_info_s info{};
                                 if (!GetPlayerInfo(i, &info))
@@ -357,7 +357,7 @@ static int cat_pl_set_state_completionCallback(const char *c_partial, char comma
 
     std::vector<std::string> names;
 
-    for (int i = 1; i <= g_IEngine->GetMaxClients(); i++)
+    for (int i = 1; i <= g_GlobalVars->maxClients; i++)
     {
         player_info_s info{};
         if (!GetPlayerInfo(i, &info))

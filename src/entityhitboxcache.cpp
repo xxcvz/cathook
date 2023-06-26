@@ -13,14 +13,14 @@ namespace hitbox_cache
 {
 void EntityHitboxCache::Init()
 {
-    model_t *model;
+    const model_t *model;
     studiohdr_t *shdr;
     mstudiohitboxset_t *set;
     m_bInit    = true;
     parent_ref = &entity_cache::array[hit_idx];
     if (CE_BAD(parent_ref))
         return;
-    model = (model_t *) RAW_ENT(parent_ref)->GetModel();
+    model = RAW_ENT(parent_ref)->GetModel();
     if (!model)
         return;
     if (!m_bModelSet || model != m_pLastModel)
@@ -29,9 +29,9 @@ void EntityHitboxCache::Init()
         if (!shdr)
             return;
         set = shdr->pHitboxSet(CE_INT(parent_ref, netvar.iHitboxSet));
-        if (!dynamic_cast<mstudiohitboxset_t *>(set))
+        if (!set)
             return;
-        m_pLastModel   = model;
+        m_pLastModel   = const_cast<model_t *>(model);
         m_nNumHitboxes = 0;
         m_nNumHitboxes = set->numhitboxes;
 
@@ -67,7 +67,7 @@ bool EntityHitboxCache::VisibilityCheck(int id)
     return m_VisCheck >> id & 1;
 }
 
-static settings::Int setupbones_time{ "source.setupbones-time", "1" };
+static settings::Int setupbones_time{ "source.setupbones-time", "4" };
 
 void EntityHitboxCache::UpdateBones()
 {
@@ -120,6 +120,9 @@ matrix3x4_t *EntityHitboxCache::GetBones(int numbones)
     case 3:
         if (CE_GOOD(parent_ref))
             bones_setup_time = CE_FLOAT(parent_ref, netvar.m_flSimulationTime);
+        break;
+    case 4:
+        bones_setup_time = g_IEngine->GetLastTimeStamp();
     }
 
     if (!bones_setup)
@@ -164,14 +167,14 @@ CachedHitbox *EntityHitboxCache::GetHitbox(int id)
         return nullptr;
     if (CE_BAD(parent_ref))
         return nullptr;
-    auto model = (const model_t *) RAW_ENT(parent_ref)->GetModel();
+    auto model = RAW_ENT(parent_ref)->GetModel();
     if (!model)
         return nullptr;
     auto shdr = g_IModelInfo->GetStudiomodel(model);
     if (!shdr)
         return nullptr;
     auto set = shdr->pHitboxSet(CE_INT(parent_ref, netvar.iHitboxSet));
-    if (!dynamic_cast<mstudiohitboxset_t *>(set))
+    if (!set)
         return nullptr;
     if (m_nNumHitboxes > m_CacheInternal.size())
         m_CacheInternal.resize(m_nNumHitboxes);

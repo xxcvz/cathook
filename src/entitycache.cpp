@@ -72,7 +72,7 @@ void Update()
 {
     max                    = g_IEntityList->GetHighestEntityIndex();
     u_int16_t current_ents = g_IEntityList->NumberOfEntities(false);
-    valid_ents.clear(); // Reserving isn't necessary as this doesn't reallocate it
+    valid_ents.clear();
     player_cache.clear();
     if (g_Settings.bInvalid)
         return;
@@ -82,7 +82,7 @@ void Update()
 
     // pre-allocate memory
     valid_ents.reserve(max);
-    player_cache.reserve(g_IEngine->GetMaxClients());
+    player_cache.reserve(g_GlobalVars->maxClients);
 
     if (previous_max == max && previous_ent == current_ents)
     {

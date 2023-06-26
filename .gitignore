@@ -269,6 +269,7 @@ Data Folder
 
 .idea
 cmake-build-debug
+cmake-build-release
 libcathook.so
 build
 # idk where it comes from

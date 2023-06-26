@@ -19,12 +19,6 @@ static settings::Int matchstate{ "steam.presence-match", "0" };          // Matc
 static settings::Int groupsize{ "steam.presence-group", "6" };           // Party Size
 static settings::String custom{ "steam.presence-value", "Cathook" };     // Custom input
 
-// Steam cannot use a made up value, so we need to fix these values for it
-std::string value = *custom;
-inline auto &groupvalue = *groupsize;
-
-std::chrono::time_point<std::chrono::system_clock> lastExecutionTimestamp;
-std::chrono::duration<double> interval(5);
 void CreateMove()
 {
     if (!enable)
@@ -65,24 +59,21 @@ void CreateMove()
             }
         }
 
-        // Custom String
         if (*marquee)
         {
-            std::chrono::time_point<std::chrono::system_clock> currentTimestamp = std::chrono::system_clock::now();
-            std::chrono::duration<double> timeElapsed                           = currentTimestamp - lastExecutionTimestamp;
-            if (timeElapsed >= interval)
+            Timer update_rich_presence;
+            if (update_rich_presence.test_and_set(5000))
             {
-                std::string temp = value;
-                value.erase(0, 1);
-                value += temp[0];
-                lastExecutionTimestamp = currentTimestamp;
+                char temp = (*custom)[0];
+                const_cast<std::string&>(*custom).erase(0, 1);
+                const_cast<std::string&>(*custom) += temp;
             }
         }
 
-        g_ISteamFriends->SetRichPresence("currentmap", value.c_str());
+        g_ISteamFriends->SetRichPresence("currentmap", (*custom).c_str());
 
         // Group Sizing
-        g_ISteamFriends->SetRichPresence("steam_player_group_size", std::to_string(groupvalue).c_str());
+        g_ISteamFriends->SetRichPresence("steam_player_group_size", groupsize.toString().c_str());
     }
 }
 

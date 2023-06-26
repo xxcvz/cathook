@@ -11,21 +11,24 @@
 #include <dlfcn.h>
 #include <boost/stacktrace.hpp>
 #include <visual/SDLHooks.hpp>
-#ifndef __RDSEED__ // Used for InitRandom()
+
+#ifdef __RDSEED__ // Used for InitRandom()
+#include "x86gprintrin.h"
+#else             /* __RDSEED__ */
 #include <random>
 #include <fstream>
 #include <chrono>
 #include <sys/types.h>
 #include <unistd.h>
-#else
-#include "x86gprintrin.h"
-#endif
+#endif /* __RDSEED__ */
+
 #include "hack.hpp"
 #include "common.hpp"
 #if ENABLE_GUI
 #include "menu/GuiInterface.hpp"
 #endif
 #include <pwd.h>
+#include <iostream>
 
 #include "teamroundtimer.hpp"
 #if EXTERNAL_DRAWING
@@ -48,21 +51,18 @@ bool hack::initialized   = false;
 const std::string &hack::GetVersion()
 {
     static std::string version("Unknown Version");
-    static bool version_set = false;
-    if (version_set)
+    if (version != "Unknown Version")
         return version;
 #if defined(GIT_COMMIT_HASH) && defined(GIT_COMMITTER_DATE)
     version = "Version: #" GIT_COMMIT_HASH " " GIT_COMMITTER_DATE;
 #endif
-    version_set = true;
     return version;
 }
 
 const std::string &hack::GetType()
 {
     static std::string version("Unknown Type");
-    static bool version_set = false;
-    if (version_set)
+    if (version != "Unknown Type")
         return version;
     version = "";
 #if !ENABLE_IPC
@@ -78,8 +78,7 @@ const std::string &hack::GetType()
     version += " NOVISUALS";
 #endif
 
-    version     = version.substr(1);
-    version_set = true;
+    version = version.substr(1);
     return version;
 }
 
@@ -99,26 +98,41 @@ void hack::ExecuteCommand(const std::string &command)
 #if ENABLE_LOGGING
 void critical_error_handler(int signum)
 {
-    ::signal(signum, SIG_DFL);
+    std::signal(signum, SIG_DFL);
+
     passwd *pwd = getpwuid(getuid());
+    if (!pwd)
+    {
+        std::cerr << "Critical error: getpwuid failed\n";
+        std::abort();
+    }
+
     std::ofstream out(strfmt("/tmp/cathook-%s-%d-segfault.log", pwd->pw_name, getpid()).get());
+    if (!out)
+    {
+        std::cerr << "Critical error: cannot open log file\n";
+        std::abort();
+    }
 
     Dl_info info;
     if (!dladdr(reinterpret_cast<void *>(hack::ExecuteCommand), &info))
-        return;
+    {
+        std::cerr << "Critical error: dladdr failed\n";
+        std::abort();
+    }
 
     for (auto i : boost::stacktrace::stacktrace())
     {
         Dl_info info2;
         if (dladdr(i.address(), &info2))
         {
-            unsigned int offset = (unsigned int) i.address() - (unsigned int) info2.dli_fbase;
-            out << (!strcmp(info2.dli_fname, info.dli_fname) ? "cathook" : info2.dli_fname) << '\t' << (void *) offset << std::endl;
+            uintptr_t offset = reinterpret_cast<uintptr_t>(i.address()) - reinterpret_cast<uintptr_t>(info2.dli_fbase);
+            out << (!strcmp(info2.dli_fname, info.dli_fname) ? "cathook" : info2.dli_fname) << '\t' << reinterpret_cast<void *>(offset) << std::endl;
         }
     }
 
     out.close();
-    ::raise(SIGABRT);
+    std::abort();
 }
 #endif
 
@@ -279,11 +293,7 @@ free(logname);*/
             std::ifstream exists(paths::getDataPath("/" + s), std::ios::in);
             if (!exists)
             {
-                Error(("Missing essential file: " + s +
-                       "/%s\nYou MUST run install-data script to finish "
-                       "installation")
-                          .c_str(),
-                      s.c_str());
+                Error(("Missing essential file: " + s + "/%s\nYou MUST run install-data script to finish installation").c_str(), s.c_str());
             }
         }
     }
@@ -370,7 +380,7 @@ free(logname);*/
         hack::command_stack().emplace(extra_exec);
 
     hack::initialized = true;
-    for (int i = 0; i < 12; i++)
+    for (int i = 0; i < 12; ++i)
     {
         re::ITFMatchGroupDescription *desc = re::GetMatchGroupDescription(i);
         if (!desc || desc->m_iID > 9) // ID's over 9 are invalid

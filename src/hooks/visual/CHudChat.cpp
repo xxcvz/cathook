@@ -43,7 +43,7 @@ DEFINE_HOOKED_METHOD(ChatPrintf, void, CHudBaseChat *_this, int player_idx, int 
 
     if (anti_spam)
     {
-        if (player_idx > 0 && player_idx <= g_IEngine->GetMaxClients())
+        if (player_idx > 0 && player_idx <= g_GlobalVars->maxClients)
         {
             // Spam Entries for player
             auto &spam_vec = spam_storage.at(player_idx - 1);

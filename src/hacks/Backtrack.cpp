@@ -178,7 +178,7 @@ void adjustPing(INetChannel *ch)
 // Move target entity to tick
 void MoveToTick(BacktrackData data)
 {
-    if (IDX_BAD(data.entidx) || data.entidx > g_IEngine->GetMaxClients())
+    if (IDX_BAD(data.entidx) || data.entidx > g_GlobalVars->maxClients)
         return;
     CachedEntity *target = ENTITY(data.entidx);
 
@@ -275,8 +275,8 @@ static void CreateMoveEarly()
 
     latency_rampup += g_GlobalVars->interval_per_tick;
     latency_rampup = std::min(1.0f, latency_rampup);
-    if ((int) bt_data.size() != g_IEngine->GetMaxClients())
-        bt_data.resize(g_IEngine->GetMaxClients());
+    if ((int) bt_data.size() != g_GlobalVars->maxClients)
+        bt_data.resize(g_GlobalVars->maxClients);
 
     for (const auto &ent: entity_cache::player_cache)
     {

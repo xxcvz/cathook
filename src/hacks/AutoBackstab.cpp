@@ -239,7 +239,7 @@ static bool doLegitBackstab()
         return false;
     int index = reinterpret_cast<IClientEntity *>(trace.m_pEnt)->entindex();
     auto ent  = ENTITY(index);
-    if (index == 0 || index > g_IEngine->GetMaxClients() || !ent->m_bEnemy() || !player_tools::shouldTarget(ent) || IsPlayerInvulnerable(ent))
+    if (index == 0 || index > g_GlobalVars->maxClients || !ent->m_bEnemy() || !player_tools::shouldTarget(ent) || IsPlayerInvulnerable(ent))
         return false;
     if (angleCheck(ENTITY(index), std::nullopt, g_pLocalPlayer->v_OrigViewangles) || canFaceStab(ENTITY(index)))
     {
