@@ -391,7 +391,7 @@ bool canReachVector(Vector loc, Vector dest)
                     g_ITrace->TraceRay(ray, 0x4200400B, &trace::filter_no_player, &trace);
                 }
                 // distance of trace < than 26
-                if (trace.startpos.DistToSqr(trace.endpos) < SQR(26.0f))
+                if (trace.startpos.DistToSqr(trace.endpos) < Sqr(26.0f))
                     return false;
             }
         }
@@ -434,7 +434,7 @@ bool canReachVector(Vector loc, Vector dest)
                 g_ITrace->TraceRay(ray, 0x4200400B, &trace::filter_no_player, &trace);
             }
             // distance of trace < than 26
-            if (trace.startpos.DistToSqr(trace.endpos) < SQR(26.0f))
+            if (trace.startpos.DistToSqr(trace.endpos) < Sqr(26.0f))
                 return false;
         }
     }
@@ -807,7 +807,7 @@ void MatrixAngles(const matrix3x4_t &matrix, float *angles)
     left[2]    = matrix[2][1];
     up[2]      = matrix[2][2];
 
-    float xyDist = FastSqrt(SQR(forward[0]) + SQR(forward[1]));
+    float xyDist = std::hypot(forward[0], forward[1]);
 
     // enough here to get angles?
     if (xyDist > 0.001f)
@@ -836,17 +836,17 @@ void MatrixAngles(const matrix3x4_t &matrix, float *angles)
 
 void VectorAngles(Vector &forward, Vector &angles)
 {
-    if (forward[1] == 0 && forward[0] == 0)
+    if (forward[1] == 0.0f && forward[0] == 0.0f)
     {
-        angles[0] = forward[2] >= 0 ? 270 : 90;
-        angles[1] = 0;
+        angles[0] = forward[2] >= 0.0f ? 270.0f : 90.0f;
+        angles[1] = 0.0f;
     }
     else
     {
         angles[1] = std::remainder(RAD2DEG(std::atan2(forward[1], forward[0])), 360.0f);
-        angles[0] = std::remainder(RAD2DEG(std::atan2(-forward[2], FastSqrt(SQR(forward[0]) + SQR(forward[1])))), 360.0f);
+        angles[0] = std::remainder(RAD2DEG(std::atan2(-forward[2], std::hypot(forward[0], forward[1]))), 360.0f);
     }
-    angles[2] = 0;
+    angles[2] = 0.0f;
 }
 
 // Forward, right, and up
@@ -970,7 +970,7 @@ void FixMovement(CUserCmd &cmd, Vector &viewangles)
     movement.x = cmd.forwardmove;
     movement.y = cmd.sidemove;
     movement.z = cmd.upmove;
-    speed      = FastSqrt(SQR(movement.x) + SQR(movement.y));
+    speed      = std::hypot(movement.x, movement.y);
     VectorAngles(movement, ang);
     yaw             = DEG2RAD(ang.y - viewangles.y + cmd.viewangles.y);
     cmd.forwardmove = cos(yaw) * speed;

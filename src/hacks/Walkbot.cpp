@@ -156,12 +156,11 @@ float distance_2d(Vector &xyz)
 {
     float dx = xyz.x - g_pLocalPlayer->v_Origin.x;
     float dy = xyz.y - g_pLocalPlayer->v_Origin.y;
-    return FastSqrt(SQR(dx) + SQR(dy));
+    return std::hypot(dx, dy);
 }
 
 namespace state
 {
-
 index_t free_node();
 
 // A vector containing all loaded nodes, used in both recording and replaying

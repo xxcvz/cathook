@@ -133,7 +133,7 @@ float QuaternionNormalize(Quaternion &q)
 
     Assert(q.IsValid());
 
-    radius = SQR(q[0]) + SQR(q[1]) + SQR(q[2]) + SQR(q[3]);
+    radius = Sqr(q[0]) + Sqr(q[1]) + Sqr(q[2]) + Sqr(q[3]);
 
     if (radius) // > FLT_EPSILON && ((radius < 1.0f - 4*FLT_EPSILON) || (radius > 1.0f + 4*FLT_EPSILON))
     {

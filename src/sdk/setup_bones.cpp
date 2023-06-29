@@ -2412,11 +2412,11 @@ public:
 
     static float findD(float a, float b, float c)
     {
-        return (c + (SQR(a) - SQR(b)) / c) / 2;
+        return (c + (Sqr(a) - Sqr(b)) / c) / 2.0f;
     }
     static float findE(float a, float d)
     {
-        return FastSqrt(SQR(a) - SQR(d));
+        return FastSqrt(Sqr(a) - Sqr(d));
     }
 
     // This leads to a solution to the more general problem:
@@ -3426,15 +3426,15 @@ void CIKTarget::SetPosWithNormalOffset(const Vector &pos, const Vector &normal)
 {
     // assume it's a disc edge intersecting with the floor, so try to estimate the z location of the center
     est.pos = pos;
-    if (normal.z > 0.9999)
+    if (normal.z > 0.9999f)
     {
         return;
     }
     // clamp at 45 degrees
-    else if (normal.z > 0.707)
+    else if (normal.z > 0.707f)
     {
         // tan == sin / cos
-        float tan = FastSqrt(1 - SQR(normal.z)) / normal.z;
+        float tan = FastSqrt(1.0f - Sqr(normal.z)) / normal.z;
         est.pos.z = est.pos.z - est.radius * tan;
     }
     else

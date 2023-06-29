@@ -1112,7 +1112,7 @@ bool Aim(CachedEntity *entity)
             Vector vel = 0.9f * (fwd * cur_proj_speed + up * 200.0f);
             fwd.z      = 0.0f;
             fwd.NormalizeInPlace();
-            float alongvel = FastSqrt(SQR(vel.x) + SQR(vel.y));
+            float alongvel = std::hypot(vel.x, vel.y);
             fwd *= alongvel;
             const float gravity  = cur_proj_grav * g_ICvar->FindVar("sv_gravity")->GetFloat() * -1.0f;
             const float maxTime  = 2.5f;
@@ -1125,7 +1125,7 @@ bool Aim(CachedEntity *entity)
             {
                 curr_pos.x = orig.x + fwd.x * t;
                 curr_pos.y = orig.y + fwd.y * t;
-                curr_pos.z = orig.z + vel.z * t + 0.5f * gravity * SQR(t);
+                curr_pos.z = orig.z + vel.z * t + 0.5f * gravity * Sqr(t);
                 if (!DidProjectileHit(last_pos, curr_pos, entity, ProjectileHitboxSize(LOCAL_W->m_iClassID()), true, &ptr_trace) || (IClientEntity *) ptr_trace.m_pEnt == rawest_ent)
                     break;
             }

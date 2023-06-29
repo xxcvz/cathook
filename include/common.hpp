@@ -85,7 +85,6 @@ template <typename T> constexpr T _clamp(T _min, T _max, T _val)
 
 #define _FASTCALL __attribute__((fastcall))
 #define STRINGIFY(x) #x
-#define SQR(x) ((x) * (x))
 
 #define SUPER_VERBOSE_DEBUG false
 #if SUPER_VERBOSE_DEBUG

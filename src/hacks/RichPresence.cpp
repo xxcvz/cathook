@@ -19,9 +19,11 @@ static settings::Int matchstate{ "steam.presence-match", "0" };          // Matc
 static settings::Int groupsize{ "steam.presence-group", "6" };           // Party Size
 static settings::String custom{ "steam.presence-value", "Cathook" };     // Custom input
 
+std::string value = *custom;
+
 void CreateMove()
 {
-    if (!enable)
+    if (!*enable)
     {
         // says "Team Fortress 2" until player leaves/joins a server
         g_ISteamFriends->SetRichPresence("steam_display", "");
@@ -29,7 +31,7 @@ void CreateMove()
     else
     {
         // These are choices for current match
-        if (!g_IEngine->IsInGame() && !override)
+        if (!*override && !g_IEngine->IsInGame())
         {
             // game state is not in a match
             g_ISteamFriends->SetRichPresence("state", "MainMenu");
@@ -64,13 +66,13 @@ void CreateMove()
             Timer update_rich_presence;
             if (update_rich_presence.test_and_set(5000))
             {
-                char temp = (*custom)[0];
-                const_cast<std::string&>(*custom).erase(0, 1);
-                const_cast<std::string&>(*custom) += temp;
+                char temp = value[0];
+                value.erase(0, 1);
+                value += temp;
             }
         }
 
-        g_ISteamFriends->SetRichPresence("currentmap", (*custom).c_str());
+        g_ISteamFriends->SetRichPresence("currentmap", value.c_str());
 
         // Group Sizing
         g_ISteamFriends->SetRichPresence("steam_player_group_size", groupsize.toString().c_str());
