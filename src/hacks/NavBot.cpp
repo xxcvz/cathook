@@ -77,7 +77,7 @@ bool shouldSearchHealth(bool low_priority = false)
     // Priority too high
     if (navparser::NavEngine::current_priority > health)
         return false;
-    float health_percent = LOCAL_E->m_iHealth() / g_pPlayerResource->GetMaxHealth(LOCAL_E);
+    float health_percent = static_cast<float>(g_pLocalPlayer->health) / LOCAL_E->m_iMaxHealth();
     // Get health when below 65%, or below 80% and just patrolling
     return health_percent < 0.64f || low_priority && (navparser::NavEngine::current_priority <= patrol || navparser::NavEngine::current_priority == lowprio_health) && health_percent <= 0.80f;
 }
@@ -93,7 +93,7 @@ bool shouldSearchAmmo()
     if (navparser::NavEngine::current_priority > ammo)
         return false;
 
-    int *weapon_list = (int *) ((uint64_t) (RAW_ENT(LOCAL_E)) + netvar.hMyWeapons);
+    int *weapon_list = &CE_INT(LOCAL_E, netvar.hMyWeapons);
     if (!weapon_list)
         return false;
     if (g_pLocalPlayer->holding_sniper_rifle && CE_INT(LOCAL_E, netvar.m_iAmmo + 4) <= 5)

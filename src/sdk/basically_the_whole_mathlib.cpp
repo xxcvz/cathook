@@ -232,9 +232,9 @@ void MatrixAngles(const matrix3x4_t &matrix, Quaternion &q, Vector &pos)
     if (trace > 1.0f + FLT_EPSILON)
     {
         // VPROF_INCREMENT_COUNTER("MatrixQuaternion A",1);
-        q.x = (matrix[2][1] - matrix[1][2]);
-        q.y = (matrix[0][2] - matrix[2][0]);
-        q.z = (matrix[1][0] - matrix[0][1]);
+        q.x = matrix[2][1] - matrix[1][2];
+        q.y = matrix[0][2] - matrix[2][0];
+        q.z = matrix[1][0] - matrix[0][1];
         q.w = trace;
     }
     else if (matrix[0][0] > matrix[1][1] && matrix[0][0] > matrix[2][2])
@@ -242,9 +242,9 @@ void MatrixAngles(const matrix3x4_t &matrix, Quaternion &q, Vector &pos)
         // VPROF_INCREMENT_COUNTER("MatrixQuaternion B",1);
         trace = 1.0f + matrix[0][0] - matrix[1][1] - matrix[2][2];
         q.x   = trace;
-        q.y   = (matrix[1][0] + matrix[0][1]);
-        q.z   = (matrix[0][2] + matrix[2][0]);
-        q.w   = (matrix[2][1] - matrix[1][2]);
+        q.y   = matrix[1][0] + matrix[0][1];
+        q.z   = matrix[0][2] + matrix[2][0];
+        q.w   = matrix[2][1] - matrix[1][2];
     }
     else if (matrix[1][1] > matrix[2][2])
     {
@@ -252,17 +252,17 @@ void MatrixAngles(const matrix3x4_t &matrix, Quaternion &q, Vector &pos)
         trace = 1.0f + matrix[1][1] - matrix[0][0] - matrix[2][2];
         q.x   = (matrix[0][1] + matrix[1][0]);
         q.y   = trace;
-        q.z   = (matrix[2][1] + matrix[1][2]);
-        q.w   = (matrix[0][2] - matrix[2][0]);
+        q.z   = matrix[2][1] + matrix[1][2];
+        q.w   = matrix[0][2] - matrix[2][0];
     }
     else
     {
         // VPROF_INCREMENT_COUNTER("MatrixQuaternion D",1);
         trace = 1.0f + matrix[2][2] - matrix[0][0] - matrix[1][1];
-        q.x   = (matrix[0][2] + matrix[2][0]);
-        q.y   = (matrix[2][1] + matrix[1][2]);
+        q.x   = matrix[0][2] + matrix[2][0];
+        q.y   = matrix[2][1] + matrix[1][2];
         q.z   = trace;
-        q.w   = (matrix[1][0] - matrix[0][1]);
+        q.w   = matrix[1][0] - matrix[0][1];
     }
 
     QuaternionNormalize(q);

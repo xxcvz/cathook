@@ -161,11 +161,14 @@ bool HasWeapon(CachedEntity *ent, int wantedId);
 bool IsAmbassador(CachedEntity *ent);
 bool AmbassadorCanHeadshot();
 // Validate a UserCmd
-#define VERIFIED_CMD_SIZE 90
+constexpr unsigned char VERIFIED_CMD_SIZE = 90;
 void ValidateUserCmd(CUserCmd *cmd, int sequence_nr);
 
 // Convert a TF2 handle into an IDX -> ENTITY(IDX)
-#define HandleToIDX(handle) (handle & 0xFFFF)
+FORCEINLINE int HandleToIDX(int handle)
+{
+    return handle & 0xFFFF;
+}
 
 inline const char *teamname(int team)
 {
@@ -179,6 +182,7 @@ inline const char *teamname(int team)
         return "SPEC";
     }
 }
+
 extern const std::string classes[10];
 inline const char *classname(int clazz)
 {

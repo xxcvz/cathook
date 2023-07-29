@@ -534,7 +534,7 @@ float CAM_CapYaw_Hook(IInput *this_, float fVal)
     return fVal;
 }
 
-#define foffset(p, i) ((unsigned char *) &p)[i]
+#define foffset(p, i) ((uint8_t *) &p)[i]
 static InitRoutine init(
     []()
     {

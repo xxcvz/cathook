@@ -10,7 +10,7 @@
 
 #include "bytepatch.hpp"
 
-#define foffset(p, i) ((unsigned char *) &p)[i]
+#define foffset(p, i) ((uint8_t *) &p)[i]
 
 class DetourHook
 {
@@ -31,20 +31,20 @@ public:
         original_address   = original;
         hook_fn            = hook_func;
         uintptr_t rel_addr = reinterpret_cast<uintptr_t>(hook_func) - original_address - 5;
-        patch = std::make_unique<BytePatch>(original, std::vector<unsigned char> { 0xE9, foffset(rel_addr, 0), foffset(rel_addr, 1), foffset(rel_addr, 2), foffset(rel_addr, 3) });
+        patch = std::make_unique<BytePatch>(original, std::vector<uint8_t> { 0xE9, foffset(rel_addr, 0), foffset(rel_addr, 1), foffset(rel_addr, 2), foffset(rel_addr, 3) });
         InitBytepatch();
     }
 
     void InitBytepatch()
     {
         if (patch)
-            (*patch).Patch();
+            patch->Patch();
     }
 
     void Shutdown()
     {
         if (patch)
-            (*patch).Shutdown();
+            patch->Shutdown();
     }
 
     ~DetourHook()
@@ -58,7 +58,7 @@ public:
         if (patch)
         {
             // Unpatch
-            (*patch).Shutdown();
+            patch->Shutdown();
             return reinterpret_cast<void *>(original_address);
         }
         // No patch, no func.

@@ -329,7 +329,7 @@ std::pair<Vector, Vector> VischeckWall(CachedEntity *player, CachedEntity *targe
     return { { 0, 0, 0 }, { 0, 0, 0 } };
 }
 
-// Returns a vectors max value. For example: {123,-150, 125} = 125
+// Returns a vector's max value. For example: {123,-150, 125} = 125
 float vectorMax(Vector i)
 {
     __m128 vec = _mm_set_ps(i.z, i.y, i.x, -FLT_MAX);

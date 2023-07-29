@@ -255,7 +255,7 @@ void FX_Tracer_detour(Vector &start, CEffectData &data, int velocity, bool makeW
     DispatchEffect_fn("ParticleEffect", dataTracer);
 }
 
-#define foffset(p, i) ((unsigned char *) &(p))[i]
+#define foffset(p, i) ((uint8_t *) &(p))[i]
 
 static InitRoutine init(
     []()

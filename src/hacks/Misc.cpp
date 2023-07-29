@@ -947,7 +947,7 @@ void UpdateLocalPlayerVisionFlags()
     }
 }
 
-#define access_ptr(p, i) ((uint8 *) &(p))[i]
+#define access_ptr(p, i) ((uint8_t *) &(p))[i]
 
 static InitRoutine init_pyrovision(
     []()

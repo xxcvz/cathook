@@ -47,7 +47,7 @@ struct mstudiobbox_t;
 
 #define CE_INT(entity, offset) CE_VAR(entity, offset, int)
 #define CE_FLOAT(entity, offset) CE_VAR(entity, offset, float)
-#define CE_BYTE(entity, offset) CE_VAR(entity, offset, unsigned char)
+#define CE_BYTE(entity, offset) CE_VAR(entity, offset, byte)
 #define CE_VECTOR(entity, offset) CE_VAR(entity, offset, Vector)
 
 #define CE_GOOD(entity) ((entity) && !g_Settings.bInvalid && (entity)->Good())
