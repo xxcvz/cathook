@@ -230,11 +230,10 @@ void SpectatorUpdate()
     {
     // Always on
     default:
-    case 0:
         break;
     // Disable if being spectated in first person
     case 1:
-        if (g_pLocalPlayer->spectator_state == g_pLocalPlayer->FIRSTPERSON)
+        if (g_pLocalPlayer->spectator_state == LocalPlayer::FIRSTPERSON)
         {
             enable   = *specenable;
             slow_aim = *specslow;
@@ -243,7 +242,7 @@ void SpectatorUpdate()
         break;
     // Disable if being spectated
     case 2:
-        if (g_pLocalPlayer->spectator_state == g_pLocalPlayer->ANY)
+        if (g_pLocalPlayer->spectator_state == LocalPlayer::ANY)
         {
             enable   = *specenable;
             slow_aim = *specslow;
@@ -496,13 +495,16 @@ static void CreateMove()
 
     bool aimkey_status = UpdateAimkey();
 
-    if (*specmode != 0)
+    if (*specmode > 0)
         SpectatorUpdate();
     if (!enable || !LOCAL_E || !g_pLocalPlayer->alive || !aimkey_status || !ShouldAim())
     {
         target_last = nullptr;
         return;
     }
+
+    if (*only_can_shoot && !CanShoot() && !hacks::warp::in_rapidfire)
+        return;
 
     DoAutoZoom(false, nullptr);
 
@@ -546,11 +548,11 @@ static void CreateMove()
                 target_last = nullptr;
                 return;
             }
-            if (*proj_speed != 0.0f)
+            if (*proj_speed > 0.0f)
                 cur_proj_speed = *proj_speed;
-            if (*proj_gravity != 0)
+            if (*proj_gravity > 0.0f)
                 cur_proj_grav = *proj_gravity;
-            if (*proj_start_vel != 0)
+            if (*proj_start_vel > 0.0f)
                 cur_proj_start_vel = *proj_start_vel;
             target_last = RetrieveBestTarget(aimkey_status);
             if (target_last)
@@ -573,7 +575,7 @@ bool ProjectileSpecialCases(CachedEntity *target_entity, int weapon_case)
     case CL_CLASS(CTFCompoundBow):
     {
         bool release = false;
-        if (autoshoot)
+        if (*autoshoot)
             current_user_cmd->buttons |= IN_ATTACK;
         // Grab time when charge began
         float begincharge = CE_FLOAT(LOCAL_W, netvar.flChargeBeginTime);
@@ -582,14 +584,14 @@ bool ProjectileSpecialCases(CachedEntity *target_entity, int weapon_case)
             charge = 0.0f;
         int damage        = std::floor(50.0f + 70.0f * fminf(1.0f, charge));
         int charge_damage = std::floor(50.0f + 70.0f * fminf(1.0f, charge)) * 3.0f;
-        if (HasCondition<TFCond_Slowed>(LOCAL_E) && (autoshoot || !(current_user_cmd->buttons & IN_ATTACK)) && (!*wait_for_charge || charge >= 1.0f || damage >= target_entity->m_iHealth() || charge_damage >= target_entity->m_iHealth()))
+        if (HasCondition<TFCond_Slowed>(LOCAL_E) && (*autoshoot || !(current_user_cmd->buttons & IN_ATTACK)) && (!*wait_for_charge || charge >= 1.0f || damage >= target_entity->m_iHealth() || charge_damage >= target_entity->m_iHealth()))
             release = true;
         return release;
     }
     case CL_CLASS(CTFCannon):
     {
         bool release = false;
-        if (autoshoot)
+        if (*autoshoot)
             current_user_cmd->buttons |= IN_ATTACK;
         float detonate_time = CE_FLOAT(LOCAL_W, netvar.flDetonateTime);
         // Currently charging up
@@ -788,7 +790,7 @@ CachedEntity *RetrieveBestTarget(bool aimkey_state)
                             const float dist_hazard_to_enemy        = hazard_origin.DistTo(ent->m_vecOrigin());
                             const float dist_hazard_to_local_player = hazard_entity->m_flDistance();
                             const float damage_to_enemy             = 150.0f - 0.25f * dist_hazard_to_enemy;
-                            // Hazards cannot deal more than 75 damage
+                            // Hazards cannot deal less than 75 damage
                             if (damage_to_enemy >= 75.0f && dist_hazard_to_local_player > 350.0f && Aim(hazard_entity))
                                 return hazard_entity;
                         }
@@ -1201,7 +1203,7 @@ void DoAutoshoot(CachedEntity *target_entity)
 
         // Release Sticky if > chargetime, 3.85 is the max second chargetime,
         // but we also need to consider the release time supplied by the user
-        if (chargetime >= 3.85f * *sticky_autoshoot != 0 && began_sticky > 3)
+        if (chargetime >= 3.85f && *sticky_autoshoot != 0 && began_sticky > 3)
         {
             current_user_cmd->buttons &= ~IN_ATTACK;
             hacks::antiaim::SetSafeSpace(5);
@@ -1330,7 +1332,7 @@ int NotVisibleHitbox(CachedEntity *target, int preferred)
 
 int AutoHitbox(CachedEntity *target)
 {
-    int preferred      = 3;
+    int preferred      = hitbox_t::spine_1;
     auto target_health = static_cast<float>(target->m_iHealth()); // This was used way too many times. Due to how pointers work (defrencing)+the compiler already dealing with tons of AIDS global variables it likely derefrenced it every time it was called.
     int ci             = LOCAL_W->m_iClassID();
 
@@ -1403,7 +1405,7 @@ int AutoHitbox(CachedEntity *target)
     // Rockets and stickies should aim at the foot if the target is on the ground
     else if (ci == CL_CLASS(CTFPipebombLauncher) || ci == CL_CLASS(CTFRocketLauncher) || ci == CL_CLASS(CTFParticleCannon) || ci == CL_CLASS(CTFRocketLauncher_AirStrike) || ci == CL_CLASS(CTFRocketLauncher_Mortar) || ci == CL_CLASS(CTFRocketLauncher_DirectHit))
     {
-        bool ground = CE_INT(target, netvar.iFlags) & 1 << 0;
+        bool ground = CE_INT(target, netvar.iFlags) & FL_ONGROUND;
         if (ground)
             preferred = NotVisibleHitbox(target, hitbox_t::foot_L); // Only time it is worth the penalty
     }

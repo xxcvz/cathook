@@ -1,5 +1,5 @@
 /*
- *prediction.h
+ * prediction.hpp
  *
  * Created on: Dec 5, 2016
  *     Author: nullifiedcat
@@ -13,9 +13,9 @@
 #include <optional>
 #include "interfaces.hpp"
 #include "sdk.hpp"
+
 // Found in C_BasePlayer. It represents "m_pCurrentCommand"
-#define CURR_CUSERCMD_PTR 4452
-#pragma once
+constexpr unsigned short CURR_CUSERCMD_PTR = 4452;
 
 class CachedEntity;
 class Vector;

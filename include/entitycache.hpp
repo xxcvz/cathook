@@ -35,9 +35,9 @@ struct model_t;
 struct mstudiohitboxset_t;
 struct mstudiobbox_t;
 
-#define PROXY_ENTITY true
+#define PROXY_ENTITY
 
-#if PROXY_ENTITY
+#ifdef PROXY_ENTITY
 #define RAW_ENT(ce) ce->InternalEntity()
 #else
 #define RAW_ENT(ce) ce->m_pEntity
@@ -93,11 +93,6 @@ public:
             return false;
         IClientEntity *const entity = InternalEntity();
         return entity;
-    }
-
-    template <typename T> __attribute__((always_inline, hot, const)) T &var(uintptr_t offset) const
-    {
-        return *reinterpret_cast<T *>(uintptr_t(RAW_ENT(this)) + offset);
     }
 
     const u_int16_t m_IDX;
@@ -277,7 +272,7 @@ public:
     }
 
     bool velocity_is_valid{ false };
-#if !PROXY_ENTITY
+#ifndef PROXY_ENTITY
     IClientEntity *m_pEntity{ nullptr };
 #endif
 };

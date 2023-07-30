@@ -62,7 +62,6 @@ void DrawCheatVisuals()
     {
         PROF_SECTION(DRAW_info)
         std::string name_s, reason_s;
-        PROF_SECTION(PT_info_text)
         if (*info_text && (!g_IEngine->IsConnected() || g_IEngine->Con_IsVisible()))
         {
             auto color = colors::RainbowCurrent();

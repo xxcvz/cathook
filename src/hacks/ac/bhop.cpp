@@ -33,7 +33,7 @@ void Init()
 void Update(CachedEntity *player)
 {
     auto &data  = data_table[player->m_IDX - 1];
-    bool ground = player->var<int>(netvar.iFlags) & FL_ONGROUND;
+    bool ground = CE_INT(player, netvar.iFlags) & FL_ONGROUND;
     if (ground)
     {
         if (!data.was_on_ground)

@@ -124,7 +124,7 @@ DEFINE_HOOKED_METHOD(FrameStageNotify, void, void *this_, ClientFrameStage_t sta
                 if (should_filter == 1 && *nightmode_gui > 0.0f)
                 {
                     // Map to PI/2 so we get full color scale
-                    rgba_t draw_color = colors::Fade(colors::white, *nightmode_gui_color, (*nightmode_gui / 100.0f) * (PI / 2), 1.0f);
+                    rgba_t draw_color = colors::Fade(colors::white, *nightmode_gui_color, (*nightmode_gui / 100.0f) * (M_PI_F / 2), 1.0f);
 
                     // Check for change
                     float r, g, b, a;
@@ -139,7 +139,7 @@ DEFINE_HOOKED_METHOD(FrameStageNotify, void, void *this_, ClientFrameStage_t sta
                 else if (should_filter == 2 && *nightmode_world > 0.0f)
                 {
                     // Map to PI/2 so we get full color scale
-                    rgba_t draw_color = colors::Fade(colors::white, *nightmode_world_color, (*nightmode_world / 100.0f) * (PI / 2), 1.0f);
+                    rgba_t draw_color = colors::Fade(colors::white, *nightmode_world_color, (*nightmode_world / 100.0f) * (M_PI_F / 2), 1.0f);
 
                     // Check for change
                     float r, g, b, a;
@@ -153,7 +153,7 @@ DEFINE_HOOKED_METHOD(FrameStageNotify, void, void *this_, ClientFrameStage_t sta
                 else if (should_filter == 3 && *nightmode_skybox > 0.0f)
                 {
                     // Map to PI/2 so we get full color scale
-                    rgba_t draw_color = colors::Fade(colors::white, *nightmode_skybox_color, (*nightmode_skybox / 100.0f) * (PI / 2), 1.0f);
+                    rgba_t draw_color = colors::Fade(colors::white, *nightmode_skybox_color, (*nightmode_skybox / 100.0f) * (M_PI_F / 2), 1.0f);
 
                     // Check for change
                     float r, g, b, a;

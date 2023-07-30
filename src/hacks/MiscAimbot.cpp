@@ -23,7 +23,6 @@ static Timer previous_entity_delay{};
 
 std::pair<CachedEntity *, Vector> FindBestEnt(bool teammate, bool Predict, bool zcheck, bool demoknight_mode, float range)
 {
-
     CachedEntity *bestent                             = nullptr;
     float bestscr                                     = FLT_MAX;
     std::optional<backtrack::BacktrackData> best_data = std::nullopt;

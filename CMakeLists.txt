@@ -159,7 +159,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-Og -m32 -march=native -mtune=native -rdynamic -ggdb"
 if (Internal_Symbolized)
     set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -ggdb -fvisibility=hidden -fvisibility-inlines-hidden")
 else()
-    set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -s -funroll-loops -fwhole-program -fipa-pta -fmerge-all-constants -fdevirtualize-at-ltrans -fsched-pressure -fvisibility=hidden -fvisibility-inlines-hidden")
+    set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -s -flto -fprefetch-loop-arrays -fno-stack-protector -funroll-loops -fwhole-program -fipa-pta -fmerge-all-constants -fdevirtualize-at-ltrans -fsched-pressure -fvisibility=hidden -fvisibility-inlines-hidden")
 endif()
 if (Force_CXX_23B)
     set(CMAKE_CXX_FLAGS "-std=gnu++2b ${CMAKE_CXX_FLAGS}")

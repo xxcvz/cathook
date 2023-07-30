@@ -507,7 +507,7 @@ Vector ComputeMove(const Vector &a, const Vector &b)
 
 ConCommand *CreateConCommand(const char *name, FnCommandCallback_t callback, const char *help)
 {
-    auto *ret = new ConCommand(name, callback, help);
+    auto ret = new ConCommand(name, callback, help);
     g_ICvar->RegisterConCommand(ret);
     RegisteredCommandsList().push_back(ret);
     return ret;

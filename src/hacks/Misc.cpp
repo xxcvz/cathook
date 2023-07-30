@@ -201,7 +201,7 @@ void DrawWireframeHitbox(wireframe_data data)
 
 static float normalizeRad(float a) noexcept
 {
-    return std::isfinite(a) ? std::remainder(a, PI * 2) : 0.0f;
+    return std::isfinite(a) ? std::remainder(a, M_PI_F * 2) : 0.0f;
 }
 
 static float angleDiffRad(float a1, float a2) noexcept
@@ -211,11 +211,11 @@ static float angleDiffRad(float a1, float a2) noexcept
     delta = normalizeRad(a1 - a2);
     if (a1 > a2)
     {
-        if (delta >= PI)
-            delta -= PI * 2;
+        if (delta >= M_PI_F)
+            delta -= M_PI_F * 2;
     }
-    else if (delta <= -PI)
-        delta += PI * 2;
+    else if (delta <= -M_PI_F)
+        delta += M_PI_F * 2;
 
     return delta;
 }
@@ -489,7 +489,7 @@ void Draw()
         AddSideString(format("Velocity: ", vel.x, ' ', vel.y, ' ', vel.z));
         AddSideString(format("Velocity3: ", vel.Length()));
         AddSideString(format("Velocity2: ", vel.Length2D()));
-        AddSideString(format("flSimTime: ", LOCAL_E->var<float>(netvar.m_flSimulationTime)));
+        AddSideString(format("flSimTime: ", CE_FLOAT(LOCAL_E, netvar.m_flSimulationTime)));
         if (current_user_cmd)
             AddSideString(format("command_number: ", last_cmd_number));
         AddSideString(format("clip: ", CE_INT(LOCAL_W, netvar.m_iClip1)));

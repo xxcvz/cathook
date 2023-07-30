@@ -17,7 +17,6 @@
 #include "common.hpp"
 #include "micropather.h"
 #include "CNavFile.h"
-#include "teamroundtimer.hpp"
 #include "Aimbot.hpp"
 #include "navparser.hpp"
 #if ENABLE_VISUALS
@@ -203,7 +202,7 @@ public:
 
     float LeastCostEstimate(void *start, void *end) override
     {
-        return reinterpret_cast<CNavArea *>(start)->m_center.DistTo(reinterpret_cast<CNavArea *>(end)->m_center);
+        return reinterpret_cast<CNavArea *>(start)->m_center.DistToSqr(reinterpret_cast<CNavArea *>(end)->m_center);
     }
 
     void AdjacentCost(void *main, std::vector<micropather::StateCost> *adjacent) override
@@ -216,9 +215,8 @@ public:
             auto cached_connection = vischeck_cache.find(connection_key);
 
             // Entered and marked bad?
-            if (cached_connection != vischeck_cache.end())
-                if (!cached_connection->second.vischeck_state)
-                    continue;
+            if (cached_connection != vischeck_cache.end() && !cached_connection->second.vischeck_state)
+                continue;
 
             // If the extern blacklist is running, ensure we don't try to use a bad area
             bool is_blacklisted = false;
@@ -255,7 +253,7 @@ public:
             {
                 if (cached->second.vischeck_state)
                 {
-                    float cost = connection.area->m_center.DistTo(area.m_center);
+                    float cost = connection.area->m_center.DistToSqr(area.m_center);
                     adjacent->push_back(micropather::StateCost{ reinterpret_cast<void *>(connection.area), cost });
                 }
             }
@@ -266,7 +264,7 @@ public:
                 {
                     vischeck_cache[key] = { TICKCOUNT_TIMESTAMP(60), true };
 
-                    float cost = points.next.DistTo(points.current);
+                    float cost = points.next.DistToSqr(points.current);
                     adjacent->push_back(micropather::StateCost{ reinterpret_cast<void *>(connection.area), cost });
                 }
                 else
@@ -471,9 +469,9 @@ bool isReady()
     std::string level_name = GetLevelName();
     return *enabled && map && map->state == NavState::Active &&
            (level_name == "plr_pipeline" || g_pGameRules->m_iRoundState > 3) &&
-           !(g_pGameRules->m_bInSetup && g_pLocalPlayer->team == TEAM_BLU) &&
-           // FIXME: If we're on a control point map, and blue is the attacking team, then the gates are closed, so we shouldn't path
-           !(g_pGameRules->m_bInWaitingForPlayers && (level_name.starts_with("pl_") || level_name.starts_with("cp_")) && g_pLocalPlayer->team == TEAM_BLU);
+           !(g_pLocalPlayer->team == TEAM_BLU && (g_pGameRules->m_bInSetup ||
+                                                  // FIXME: If we're on a control point map, and blue is the attacking team, then the gates are closed, so we shouldn't path
+                                                  (g_pGameRules->m_bInWaitingForPlayers && (level_name.starts_with("pl_") || level_name.starts_with("cp_")))));
 }
 
 bool isPathing()
@@ -655,7 +653,7 @@ static void followCrumbs()
         current_vec.z = g_pLocalPlayer->v_Origin.z;
 
     // We are close enough to the second crumb, Skip both (This is especially helpful with drop-downs)
-    if (crumbs.size() > 1 && crumbs[1].vec.DistTo(g_pLocalPlayer->v_Origin) < 50)
+    if (crumbs.size() > 1 && crumbs[1].vec.DistToSqr(g_pLocalPlayer->v_Origin) < Sqr(50.0f))
     {
         last_crumb = crumbs[1];
         crumbs.erase(crumbs.begin(), std::next(crumbs.begin()));
@@ -682,7 +680,7 @@ static void followCrumbs()
     // 1. No jumping if zoomed (or revved)
     // 2. Jump if it's necessary to do so based on z values
     // 3. Jump if stuck (not getting closer) for more than stuck_time/2
-    if ((!(g_pLocalPlayer->holding_sniper_rifle && g_pLocalPlayer->bZoomed) && !(g_pLocalPlayer->bRevved || g_pLocalPlayer->bRevving) && (crouch || crumbs[0].vec.z - g_pLocalPlayer->v_Origin.z > 18) && last_jump.check(200)) || (last_jump.check(200) && inactivity.check(*stuck_time / 2)))
+    if ((!(g_pLocalPlayer->holding_sniper_rifle && g_pLocalPlayer->bZoomed) && !(g_pLocalPlayer->bRevved || g_pLocalPlayer->bRevving) && (crouch || crumbs[0].vec.z - g_pLocalPlayer->v_Origin.z > 18.0f) && last_jump.check(200)) || (last_jump.check(200) && inactivity.check(*stuck_time / 2)))
     {
         auto local = map->findClosestNavSquare(g_pLocalPlayer->v_Origin);
         // Check if current area allows jumping

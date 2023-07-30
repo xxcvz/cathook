@@ -8,9 +8,6 @@
 #include <settings/Bool.hpp>
 #include <boost/circular_buffer.hpp>
 
-// Found in C_BasePlayer. It represents "m_pCurrentCommand"
-#define CURR_CUSERCMD_PTR 4452
-
 namespace hacks::aimbot
 {
 extern settings::Boolean engine_projpred;
@@ -80,9 +77,7 @@ static std::optional<StrafePredictionData> findCircle(const Vector &current, con
         if (xDelta_b == 0)
             return std::nullopt;
         else
-        {
             Center.y = BC_Mid.y + (BC_Mid.x - Center.x) / bSlope;
-        }
     }
     else if (yDelta_b == 0)
     {
@@ -193,7 +188,6 @@ Vector PredictStep(Vector pos, Vector &vel, const Vector &acceleration, std::pai
                 grounddistance = 0.0f;
                 moved_upwards  = true;
             }
-
             // Now check actual ground distance
             else
             {
@@ -210,9 +204,8 @@ Vector PredictStep(Vector pos, Vector &vel, const Vector &acceleration, std::pai
             }
         }
     }
-    if (grounddistance)
-        if (result.z < pos.z - *grounddistance)
-            result.z = pos.z - *grounddistance;
+    if (grounddistance && result.z < pos.z - *grounddistance)
+        result.z = pos.z - *grounddistance;
 
     // Check if we hit a wall, if so, snap to it and distance ourselves a bit from it
     if (vischeck && !moved_upwards)
@@ -263,12 +256,12 @@ Vector PredictStep(Vector pos, Vector &vel, const Vector &acceleration, std::pai
                     hitpos += normal_wall * vel * steplength;
                     result = hitpos;
                     // Adjust velocity depending on angle
-                    float speed = vel.Length2D() * (PI - impact_angle);
+                    float speed = vel.Length2D() * (M_PI_F - impact_angle);
 
                     // Adjust new velocity
-                    Vector2D new_vel = (point2.AsVector2D() - point1.AsVector2D());
+                    Vector2D new_vel = point2.AsVector2D() - point1.AsVector2D();
                     // Ensure we have no 0 length
-                    if (new_vel.Length())
+                    if (new_vel.Length() > 0.0f)
                     {
                         new_vel /= new_vel.Length();
                         vel.x = new_vel.x * speed;
@@ -307,7 +300,7 @@ void Prediction_PaintTraverse()
 {
     if (g_Settings.bInvalid)
         return;
-    if (debug_pp_draw || debug_pp_draw_engine)
+    if (*debug_pp_draw || *debug_pp_draw_engine)
     {
         if (!sv_gravity)
         {
@@ -324,7 +317,7 @@ void Prediction_PaintTraverse()
             Vector velocity;
             velocity::EstimateAbsVelocity(RAW_ENT(ent), velocity);
 
-            if (debug_pp_draw_engine)
+            if (*debug_pp_draw_engine)
             {
                 std::vector<Vector> data;
                 Vector original_origin = ent->m_vecOrigin();
@@ -378,9 +371,8 @@ void Prediction_PaintTraverse()
                 if (draw::WorldToScreen(pos2.first, aaa))
                     draw::Rectangle(aaa.x, aaa.y, 5, 5, colors::orange);*/
             }
-            if (debug_pp_draw)
+            if (*debug_pp_draw)
             {
-
                 auto data = Predict(ent, ent->m_vecOrigin(), 0.0f, velocity, Vector(0, 0, -sv_gravity->GetFloat()), std::make_pair(RAW_ENT(ent)->GetCollideable()->OBBMins(), RAW_ENT(ent)->GetCollideable()->OBBMaxs()), 64);
                 Vector previous_screen;
                 if (!draw::WorldToScreen(ent->m_vecOrigin(), previous_screen))
@@ -436,7 +428,7 @@ Vector EnginePrediction(CachedEntity *entity, float time, Vector *vecVelocity)
 
     CUserCmd fakecmd{};
 
-    Vector vel /* = NET_VECTOR(ent, 0x14c)*/;
+    Vector vel;
     velocity::EstimateAbsVelocity(RAW_ENT(entity), vel);
 
     Vector vel_angles;
@@ -452,8 +444,6 @@ Vector EnginePrediction(CachedEntity *entity, float time, Vector *vecVelocity)
     fakecmd.forwardmove    = fmove;
     fakecmd.sidemove       = smove;
     Vector oldangles       = CE_VECTOR(entity, netvar.m_angEyeAngles);
-    // static Vector zerov{ 0, 0, 0 };
-    // CE_VECTOR(entity, netvar.m_angEyeAngles) = zerov;
 
     CUserCmd *original_cmd = NET_VAR(ent, CURR_CUSERCMD_PTR, CUserCmd *);
 
@@ -463,12 +453,6 @@ Vector EnginePrediction(CachedEntity *entity, float time, Vector *vecVelocity)
     g_GlobalVars->frametime = time;
 
     Vector old_origin = entity->m_vecOrigin();
-    // Apply Velocity overwrite
-    /*if (vecVelocity)
-    {
-        NET_VECTOR(ent, 0x14c) = *vecVelocity;
-        NET_VECTOR(ent, 0x110) = *vecVelocity;
-    }*/
 
     NET_VECTOR(ent, 0x354) = entity->m_vecOrigin();
 
@@ -523,7 +507,7 @@ std::pair<Vector, Vector> ProjectilePrediction_Engine(CachedEntity *ent, int hb,
     Vector bestpos          = origin;
     Vector current          = origin;
     Vector current_velocity = velocity;
-    int maxsteps            = (int) debug_pp_steps;
+    int maxsteps            = *debug_pp_steps;
     float steplength        = g_GlobalVars->interval_per_tick;
 
     Vector ent_mins = RAW_ENT(ent)->GetCollideable()->OBBMins();
@@ -537,7 +521,7 @@ std::pair<Vector, Vector> ProjectilePrediction_Engine(CachedEntity *ent, int hb,
         current                                            = EnginePrediction(ent, steplength, &current_velocity);
 
         // Apply velocity if not touching the ground
-        if (!(CE_INT(ent, netvar.iFlags) & (1 << 0)))
+        if (!(CE_INT(ent, netvar.iFlags) & FL_ONGROUND))
             current_velocity.z -= sv_gravity->GetFloat() * entgmod * steplength;
 
         float rockettime = g_pLocalPlayer->v_Eye.DistTo(current) / speed;
@@ -565,6 +549,7 @@ std::pair<Vector, Vector> ProjectilePrediction_Engine(CachedEntity *ent, int hb,
                   result.y - origin.y, result.z - origin.z);*/
     return { result, result_initialvel };
 }
+
 std::pair<Vector, Vector> BuildingPrediction(CachedEntity *building, Vector vec, float speed, float gravity, float proj_startvelocity)
 {
     if (!vec.z || CE_BAD(building))
@@ -614,7 +599,7 @@ std::pair<Vector, Vector> ProjectilePrediction(CachedEntity *ent, int hb, float 
     float mindelta = 65536.0f;
     Vector bestpos = origin;
     Vector current;
-    int maxsteps  = (int) debug_pp_steps;
+    int maxsteps  = *debug_pp_steps;
     bool onground = false;
     if (ent->m_Type() == ENTITY_PLAYER)
         if (CE_INT(ent, netvar.iFlags) & FL_ONGROUND)
@@ -724,7 +709,7 @@ static InitRoutine init(
             []()
             {
                 // Don't run if we don't use it
-                if (!hacks::aimbot::engine_projpred && !debug_pp_draw)
+                if (!*hacks::aimbot::engine_projpred && !*debug_pp_draw)
                     return;
                 for (const auto &ent : entity_cache::player_cache)
                 {

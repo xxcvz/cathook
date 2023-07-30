@@ -36,10 +36,10 @@ float GetAngle(CachedEntity *spy)
     float yaw, yaw2, anglediff;
     Vector diff;
     yaw             = g_pLocalPlayer->v_OrigViewangles.y;
-    const Vector &A = LOCAL_E->m_vecOrigin();
+    const Vector &A = g_pLocalPlayer->v_Origin;
     const Vector &B = spy->m_vecOrigin();
-    diff            = (A - B);
-    yaw2            = acos(diff.x / diff.Length()) * 180.0f / PI;
+    diff            = A - B;
+    yaw2            = acos(diff.x / diff.Length()) * RADPI;
     if (diff.y < 0)
         yaw2 = -yaw2;
     anglediff = yaw - yaw2;

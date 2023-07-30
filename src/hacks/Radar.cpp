@@ -50,7 +50,7 @@ std::pair<int, int> WorldToRadar(int x, int y)
     dy /= (float) zoom;
 
     g_IEngine->GetViewAngles(angle);
-    ry = DEG2RAD(angle.y) + PI / 2;
+    ry = DEG2RAD(angle.y) + M_PI_F / 2;
 
     dx = -dx;
 
