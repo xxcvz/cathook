@@ -219,17 +219,7 @@ public:
                 continue;
 
             // If the extern blacklist is running, ensure we don't try to use a bad area
-            bool is_blacklisted = false;
-            if (!free_blacklist_blocked)
-                for (const auto &entry : free_blacklist)
-                {
-                    if (entry.first == connection.area)
-                    {
-                        is_blacklisted = true;
-                        break;
-                    }
-                }
-            if (is_blacklisted)
+            if (!free_blacklist_blocked && std::any_of(free_blacklist.begin(), free_blacklist.end(), [&](const auto &entry) { return entry.first == connection.area; }))
                 continue;
 
             auto points = determinePoints(&area, connection.area);
