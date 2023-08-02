@@ -503,7 +503,8 @@ static void CreateMove()
         return;
     }
 
-    if (*only_can_shoot && !CanShoot() && !hacks::warp::in_rapidfire)
+    // Unless we're using slow aim, we do not want to aim while reloading
+    if (*only_can_shoot && !slow_aim && !CanShoot())
         return;
 
     DoAutoZoom(false, nullptr);
