@@ -380,9 +380,9 @@ free(logname);*/
         hack::command_stack().emplace(extra_exec);
 
     hack::initialized = true;
-    for (int i = 0; i < 12; ++i)
+    for (int i = CGameRules::k_nMatchGroup_First; i < CGameRules::k_nMatchGroup_Count; ++i)
     {
-        re::ITFMatchGroupDescription *desc = re::GetMatchGroupDescription(i);
+        re::ITFMatchGroupDescription *desc = re::GetMatchGroupDescription(static_cast<CGameRules::EMatchGroup>(i));
         if (!desc || desc->m_iID > 9) // ID's over 9 are invalid
             continue;
         if (desc->m_bForceCompetitiveSettings)

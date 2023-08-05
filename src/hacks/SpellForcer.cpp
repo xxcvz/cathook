@@ -7,7 +7,7 @@ static settings::Boolean enabled("spellforce.enabled", "false");
 
 bool isEnabled()
 {
-    return *enabled && g_pGameRules->m_halloweenScenario != 0;
+    return *enabled && !TFGameRules()->IsHalloweenScenario(CGameRules::HALLOWEEN_SCENARIO_NONE);
 }
 
 static settings::Int default_spell("spellforce.default_spell", "-1");
@@ -32,27 +32,17 @@ enum spelltypes
     NORMAL      = 3
 };
 
-enum halloween_scenario
-{
-    HALLOWEEN_SCENARIO_NONE = 0,
-    HALLOWEEN_SCENARIO_MANN_MANOR,
-    HALLOWEEN_SCENARIO_VIADUCT,
-    HALLOWEEN_SCENARIO_LAKESIDE,
-    HALLOWEEN_SCENARIO_HIGHTOWER,
-    HALLOWEEN_SCENARIO_DOOMSDAY
-};
-
 spelltypes getSpellMode()
 {
     if (HasCondition<TFCond_HalloweenKart>(LOCAL_E))
         return BUMPER_CARS;
 
-    int scenario = g_pGameRules->m_halloweenScenario;
+    int scenario = TFGameRules()->m_halloweenScenario;
     switch (scenario)
     {
-    case HALLOWEEN_SCENARIO_DOOMSDAY:
+    case CGameRules::HALLOWEEN_SCENARIO_DOOMSDAY:
         return DOOMSDAY;
-    case HALLOWEEN_SCENARIO_HIGHTOWER:
+    case CGameRules::HALLOWEEN_SCENARIO_HIGHTOWER:
         return HELLTOWER;
     default:
         return NORMAL;
@@ -157,7 +147,7 @@ CachedEntity *getClosestSpell()
 
 static void CreateMoveLate()
 {
-    if (!isEnabled() || !g_pGameRules->IsUsingSpells())
+    if (!isEnabled() || !TFGameRules()->IsUsingSpells())
         return;
     int cmd;
 

@@ -189,11 +189,11 @@ bool re::CTFPartyClient::GetCurrentPartyLeader(CSteamID &id)
     return true;
 }
 
-re::ITFMatchGroupDescription *re::GetMatchGroupDescription(int &idx)
+re::ITFMatchGroupDescription *re::GetMatchGroupDescription(const CGameRules::EMatchGroup &eGroup)
 {
-    typedef re::ITFMatchGroupDescription *(*GetMatchGroupDescription_t)(int &);
+    typedef re::ITFMatchGroupDescription *(*GetMatchGroupDescription_t)(const CGameRules::EMatchGroup &);
     static uintptr_t addr                   = CSignature::GetClientSignature("55 89 E5 8B 45 ? 8B 00 83 F8 ? 77");
     static auto GetMatchGroupDescription_fn = GetMatchGroupDescription_t(addr);
 
-    return GetMatchGroupDescription_fn(idx);
+    return GetMatchGroupDescription_fn(eGroup);
 }

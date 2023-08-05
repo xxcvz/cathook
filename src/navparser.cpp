@@ -458,10 +458,10 @@ bool isReady()
 
     std::string level_name = GetLevelName();
     return *enabled && map && map->state == NavState::Active &&
-           (level_name == "plr_pipeline" || g_pGameRules->m_iRoundState > 3) &&
-           !(g_pLocalPlayer->team == TEAM_BLU && (g_pGameRules->m_bInSetup ||
+           (level_name == "plr_pipeline" || TFGameRules()->State_Get() > CGameRules::GR_STATE_PREROUND) &&
+           !(g_pLocalPlayer->team == TEAM_BLU && (TFGameRules()->InSetup() ||
                                                   // FIXME: If we're on a control point map, and blue is the attacking team, then the gates are closed, so we shouldn't path
-                                                  (g_pGameRules->m_bInWaitingForPlayers && (level_name.starts_with("pl_") || level_name.starts_with("cp_")))));
+                                                  (TFGameRules()->IsInWaitingForPlayers() && (level_name.starts_with("pl_") || level_name.starts_with("cp_")))));
 }
 
 bool isPathing()
@@ -838,7 +838,7 @@ static void CreateMove()
 
     // Still in setup or waiting for players. If on fitting team, do not path yet
     std::string level_name = GetLevelName();
-    if (g_pLocalPlayer->team == TEAM_BLU && (g_pGameRules->m_bInSetup && level_name != "plr_pipeline" || g_pGameRules->m_bInWaitingForPlayers && (level_name.starts_with("pl_") || level_name.starts_with("cp_"))))
+    if (g_pLocalPlayer->team == TEAM_BLU && (TFGameRules()->InSetup() && level_name != "plr_pipeline" || TFGameRules()->IsInWaitingForPlayers() && (level_name.starts_with("pl_") || level_name.starts_with("cp_"))))
     {
         if (navparser::NavEngine::isPathing())
             navparser::NavEngine::cancelPath();

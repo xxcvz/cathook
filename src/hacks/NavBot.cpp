@@ -252,12 +252,29 @@ void refreshSniperSpots()
 
     sniper_spots.clear();
 
+    // Vector of exposed spots to nav to in case we find no sniper spots
+    std::vector<Vector> exposed_spots;
+
     // Search all nav areas for valid sniper spots
     for (auto &area : navparser::NavEngine::getNavFile()->m_areas)
+    {
         for (auto &hiding_spot : area.m_hidingSpots)
+        {
             // Spots actually marked for sniping
-            if (hiding_spot.IsExposed() || hiding_spot.IsGoodSniperSpot() || hiding_spot.IsIdealSniperSpot() || hiding_spot.HasGoodCover())
+            if (hiding_spot.IsGoodSniperSpot() || hiding_spot.IsIdealSniperSpot() || hiding_spot.HasGoodCover())
+            {
                 sniper_spots.emplace_back(hiding_spot.m_pos);
+                continue;
+            }
+
+            if (hiding_spot.IsExposed())
+                exposed_spots.emplace_back(hiding_spot.m_pos);
+        }
+    }
+
+    // If we have no sniper spots, just use nav areas marked as exposed. They're good enough for sniping.
+    if (sniper_spots.empty() && !exposed_spots.empty())
+        sniper_spots = exposed_spots;
 }
 
 std::pair<CachedEntity *, float> getNearestPlayerDistance()
@@ -511,7 +528,7 @@ void updateEnemyBlacklist(int slot)
         if (g_pPlayerResource->GetTeam(ent->m_IDX) == g_pLocalPlayer->team)
             continue;
 
-        bool is_dormant = CE_BAD(ent);
+        bool is_dormant = RAW_ENT(ent)->IsDormant();
         // Should not run on dormant and entity is dormant, ignore.
         // Should not run on normal entity and entity is not dormant, ignore
         if (!should_run_dormant || !is_dormant)
@@ -1300,7 +1317,7 @@ bool captureObjectives()
     static Timer capture_timer;
     static Vector previous_target(0.0f);
 
-    if (!*capture_objectives || g_pGameRules->m_iRoundState == 5 || g_pGameRules->m_bInWaitingForPlayers || g_pGameRules->m_bPlayingSpecialDeliveryMode || !capture_timer.check(2000))
+    if (!*capture_objectives || !TFGameRules()->PointsMayBeCaptured() || TFGameRules()->RoundHasBeenWon() || TFGameRules()->IsPlayingSpecialDeliveryMode() || !capture_timer.check(2000))
         return false;
 
     // Priority too high, don't try
@@ -1689,5 +1706,4 @@ static InitRoutine init(
 #endif
         LevelInit();
     });
-
 } // namespace hacks::NavBot

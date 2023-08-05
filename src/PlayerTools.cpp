@@ -41,14 +41,14 @@ bool shouldTarget(CachedEntity *entity)
         if (HasCondition<TFCond_HalloweenGhostMode>(entity))
             return false;
         // Don't shoot players in truce
-        if (g_pGameRules->m_bTruceActive)
+        if (TFGameRules()->IsTruceActive())
             return false;
         if (entity->player_info)
             return shouldTargetSteamId(entity->player_info->friendsID);
     }
     else if (entity->m_Type() == ENTITY_BUILDING)
         // Don't shoot buildings in truce
-        if (g_pGameRules->m_bTruceActive)
+        if (TFGameRules()->IsTruceActive())
             return false;
 
     return true;

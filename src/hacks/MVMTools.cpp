@@ -13,7 +13,7 @@ static void CreateMove()
     if (CE_INVALID(LOCAL_E))
         return;
     // only in MVM
-    if (!g_pGameRules->m_bPlayingMannVsMachine)
+    if (!TFGameRules()->IsMannVsMachineMode())
         return;
 
     if (auto_revive && !g_pLocalPlayer->alive && revive_timer.test_and_set(1000))
@@ -22,7 +22,7 @@ static void CreateMove()
         kv->SetInt("accepted", 1);
         g_IEngine->ServerCmdKeyValues(kv);
     }
-    if (auto_f4 && g_pGameRules->m_iRoundState == 10 && ready_timer.test_and_set(10000))
+    if (auto_f4 && TFGameRules()->State_Get() == CGameRules::GR_STATE_BETWEEN_RNDS && ready_timer.test_and_set(10000))
         g_IEngine->ServerCmd("tournament_player_readystate 1");
 }
 

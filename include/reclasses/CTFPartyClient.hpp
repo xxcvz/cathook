@@ -6,7 +6,9 @@
  */
 
 #pragma once
+
 #include "reclasses.hpp"
+
 namespace re
 {
 class CTFPartyClient
@@ -34,6 +36,7 @@ public:
     int KickPlayer(CSteamID steamid);
     bool GetCurrentPartyLeader(CSteamID &id);
 };
+
 class ITFMatchGroupDescription
 {
 public:
@@ -43,5 +46,5 @@ public:
     bool m_bForceCompetitiveSettings;
 };
 
-ITFMatchGroupDescription *GetMatchGroupDescription(int &idx);
+ITFMatchGroupDescription *GetMatchGroupDescription(const CGameRules::EMatchGroup &eGroup);
 } // namespace re

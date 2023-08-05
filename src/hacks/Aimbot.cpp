@@ -116,7 +116,7 @@ float last_mouse_check = 0;
 float stop_moving_time = 0;
 
 // Used to make rapidfire not knock your enemies out of range
-unsigned last_target_ignore_timer = 0;
+unsigned int last_target_ignore_timer = 0;
 
 // Projectile info
 bool projectile_mode{ false };
@@ -705,16 +705,16 @@ bool ShouldAim()
     if (g_pLocalPlayer->using_action_slot_item)
         return false;
     // Our team lost, so we can't hurt the enemy team
-    if (g_pGameRules->m_iRoundState == 5 && g_pGameRules->m_iWinningTeam != g_pLocalPlayer->team)
+    if (TFGameRules()->RoundHasBeenWon() && TFGameRules()->GetWinningTeam() != g_pLocalPlayer->team)
         return false;
     // Using a forbidden weapon?
     if (!LOCAL_W || LOCAL_W->m_iClassID() == CL_CLASS(CTFKnife) || CE_INT(LOCAL_W, netvar.iItemDefinitionIndex) == 237 || CE_INT(LOCAL_W, netvar.iItemDefinitionIndex) == 265)
         return false;
     // Carrying A building?
-    if (CE_BYTE(LOCAL_E, netvar.m_bCarryingObject) != 0)
+    if (CE_BYTE(LOCAL_E, netvar.m_bCarryingObject))
         return false;
     // Deadringer out?
-    if (CE_BYTE(LOCAL_E, netvar.m_bFeignDeathReady) != 0)
+    if (CE_BYTE(LOCAL_E, netvar.m_bFeignDeathReady))
         return false;
     // Holding a sapper?
     if (g_pLocalPlayer->holding_sapper)
@@ -772,7 +772,7 @@ CachedEntity *RetrieveBestTarget(bool aimkey_state)
     // No last_target found, reset the timer.
     last_target_ignore_timer = 0;
 
-    // Do not attempt to target pumpkins with melee
+    // Do not attempt to target hazards using melee weapons
     if (*target_hazards && GetWeaponMode() != weapon_melee)
     {
         for (const auto &hazard_entity : entity_cache::valid_ents)
@@ -1553,7 +1553,7 @@ static void DrawText()
                 // Math
                 float mon_fov  = static_cast<float>(width) / static_cast<float>(height) / (4.0f / 3.0f);
                 float fov_real = RAD2DEG(2.0f * atanf(mon_fov * tanf(DEG2RAD(draw::fov / 2.0f))));
-                float radius   = tan(DEG2RAD(static_cast<float>(fov)) / 2.0f) / tan(DEG2RAD(fov_real) / 2.0f) * static_cast<float>(width);
+                float radius   = tan(DEG2RAD(fov) / 2.0f) / tan(DEG2RAD(fov_real) / 2.0f) * static_cast<float>(width);
 
                 draw::Circle(static_cast<float>(width) / 2, static_cast<float>(height) / 2, radius, color, 1, 100);
             }
@@ -1585,7 +1585,7 @@ static InitRoutine EC(
     {
         hacks::backtrack::latency.installChangeCallback(RvarCallback);
         EC::Register(EC::LevelInit, Reset, "INIT_Aimbot", EC::average);
-        EC::Register(EC::LevelShutdown, Reset, "RESET_Aimbot", EC::average);
+        EC::Register(EC::LevelShutdown, Reset, "SHUTDOWN_Aimbot", EC::average);
         EC::Register(EC::CreateMove, CreateMove, "CM_Aimbot", EC::late);
         EC::Register(EC::CreateMoveWarp, CreateMoveWarp, "CMW_Aimbot", EC::late);
 #if ENABLE_VISUALS

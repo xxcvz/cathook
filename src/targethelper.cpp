@@ -102,7 +102,7 @@ int GetScoreForEntity(CachedEntity *entity)
         total = 999;
     if (!*hacks::aimbot::aim_sentrybuster && IsSentryBuster(entity))
         total = 0;
-    if (g_pGameRules->m_bPlayingMannVsMachine && clazz == tf_medic)
+    if (TFGameRules()->IsMannVsMachineMode() && clazz == tf_medic)
         total = 999;
     return total;
 }

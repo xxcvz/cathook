@@ -19,25 +19,132 @@
 class CGameRules
 {
 public:
-    char pad0[68];                      // 0    | 68 bytes  | 68
-    int m_iRoundState;                  // 68   | 4 bytes   | 72
-    char pad1[1];                       // 72   | 1 byte    | 73
-    bool m_bInSetup;                    // 73   | 1 byte    | 74
-    char pad2[2];                       // 74   | 4 bytes   | 76
-    int m_iWinningTeam;                 // 76   | 4 bytes   | 80
-    char pad3[4];                       // 80   | 4 bytes   | 84
-    bool m_bInWaitingForPlayers;        // 84   | 1 byte    | 85
-    bool bool_pad0[3];                  // 85   | 3 bytes   | 88
-    char pad4[965];                     // 88   | 965 bytes | 1053
-    bool m_bPlayingSpecialDeliveryMode; // 1053 | 1 byte    | 1054
-    bool m_bPlayingMannVsMachine;       // 1054 | 1 byte    | 1055
-    char bool_pad1[3];                  // 1055 | 3 bytes   | 1058
-    char pad5[12];                      // 1058 | 12 bytes  | 1070
-    bool m_bIsUsingSpells;              // 1070 | 1 byte    | 1071
-    bool m_bTruceActive;                // 1071 | 1 byte    | 1072
-    char bool_pad2[2];                  // 1072 | 2 bytes   | 1074
-    char pad6[790];                     // 1074 | 790 bytes | 1864
-    int m_halloweenScenario;            // 1864 | 4 bytes   | 1868
+    enum gamerules_roundstate_t
+    {
+        // initialize the game, create teams
+        GR_STATE_INIT = 0,
+
+        // Before players have joined the game. Periodically checks to see if enough players are ready
+        // to start a game. Also reverts to this when there are no active players
+        GR_STATE_PREGAME,
+
+        // The game is about to start, wait a bit and spawn everyone
+        GR_STATE_STARTGAME,
+
+        // All players are respawned, frozen in place
+        GR_STATE_PREROUND,
+
+        // Round is on, playing normally
+        GR_STATE_RND_RUNNING,
+
+        // Someone has won the round
+        GR_STATE_TEAM_WIN,
+
+        // No one has won, manually restart the game, reset scores
+        GR_STATE_RESTART,
+
+        // No one has won, restart the game
+        GR_STATE_STALEMATE,
+
+        // Game is over, showing the scoreboard etc
+        GR_STATE_GAME_OVER,
+
+        // Game is in a bonus state, transitioned to after a round ends
+        GR_STATE_BONUS,
+
+        // Game is awaiting the next wave/round of a multi round experience
+        GR_STATE_BETWEEN_RNDS,
+
+        GR_NUM_ROUND_STATES
+    };
+
+    enum HalloweenScenarioType
+    {
+        HALLOWEEN_SCENARIO_NONE = 0,
+        HALLOWEEN_SCENARIO_MANN_MANOR,
+        HALLOWEEN_SCENARIO_VIADUCT,
+        HALLOWEEN_SCENARIO_LAKESIDE,
+        HALLOWEEN_SCENARIO_HIGHTOWER,
+        HALLOWEEN_SCENARIO_DOOMSDAY
+    };
+
+    // Stored value, don't re-order
+    enum EMatchGroup
+    {
+        k_nMatchGroup_Invalid = -1,
+        k_nMatchGroup_First   = 0,
+
+        k_nMatchGroup_MvM_Practice = 0,
+        k_nMatchGroup_MvM_MannUp,
+
+        k_nMatchGroup_Ladder_6v6,
+        k_nMatchGroup_Ladder_9v9,
+        k_nMatchGroup_Ladder_12v12,
+
+        k_nMatchGroup_Casual_6v6,
+        k_nMatchGroup_Casual_9v9,
+        k_nMatchGroup_Casual_12v12,
+
+        k_nMatchGroup_Count
+    };
+
+    char pad0[68];                              // 0    | 68 bytes   | 68
+    gamerules_roundstate_t m_iRoundState;       // 68   | 4 bytes    | 72
+    char pad1[1];                               // 72   | 1 byte     | 73
+    bool m_bInSetup;                            // 73   | 1 byte     | 74
+    char pad2[2];                               // 74   | 4 bytes    | 76
+    int m_iWinningTeam;                         // 76   | 4 bytes    | 80
+    char pad3[4];                               // 80   | 4 bytes    | 84
+    bool m_bInWaitingForPlayers;                // 84   | 1 byte     | 85
+    bool bool_pad0[3];                          // 85   | 3 bytes    | 88
+    char pad4[1037];                            // 88   | 1037 bytes | 1125
+    bool m_bPlayingSpecialDeliveryMode;         // 1125 | 1 byte     | 1126
+    bool m_bPlayingMannVsMachine;               // 1126 | 1 byte     | 1127
+    char bool_pad1[3];                          // 1127 | 3 bytes    | 1130
+    bool m_bCompetitiveMode;                    // 1130 | 1 byte     | 1131
+    char bool_pad2[3];                          // 1131 | 3 bytes    | 1134
+    char pad5[8];                               // 1134 | 8 bytes    | 1142
+    bool m_bIsUsingSpells;                      // 1142 | 1 byte     | 1143
+    bool m_bTruceActive;                        // 1143 | 1 byte     | 1144
+    char bool_pad3[2];                          // 1144 | 2 bytes    | 1146
+    char pad6[1062];                            // 1146 | 1062 bytes | 2208
+    HalloweenScenarioType m_halloweenScenario;  // 2208 | 4 bytes    | 2212
+
+    int GetWinningTeam() const
+    {
+        return m_iWinningTeam;
+    }
+
+    inline gamerules_roundstate_t State_Get() const
+    {
+        return m_iRoundState;
+    }
+
+    bool RoundHasBeenWon()
+    {
+        return State_Get() == GR_STATE_TEAM_WIN;
+    }
+
+    bool InRoundRestart()
+    {
+        return State_Get() == GR_STATE_PREROUND;
+    }
+
+    bool InStalemate()
+    {
+        return State_Get() == GR_STATE_STALEMATE;
+    }
+
+    // Return false if players aren't allowed to cap points at this time (i.e. in WaitingForPlayers)
+    bool PointsMayBeCaptured()
+    {
+        return (State_Get() == GR_STATE_RND_RUNNING || InStalemate()) && !IsInWaitingForPlayers();
+    }
+
+    inline bool IsHalloweenScenario(HalloweenScenarioType scenario) const
+    {
+        return m_halloweenScenario == scenario;
+    }
 
     bool IsUsingSpells() const
     {
@@ -46,9 +153,42 @@ public:
             return true;
 
         // Hightower
-        if (m_halloweenScenario == 4)
+        if (IsHalloweenScenario(HALLOWEEN_SCENARIO_HIGHTOWER))
             return true;
 
         return m_bIsUsingSpells;
     }
+
+    bool IsMannVsMachineMode() const
+    {
+        return m_bPlayingMannVsMachine;
+    }
+
+    bool IsPlayingSpecialDeliveryMode() const
+    {
+        return m_bPlayingSpecialDeliveryMode;
+    }
+
+    bool IsTruceActive() const
+    {
+        return m_bTruceActive;
+    }
+
+    bool InSetup() const
+    {
+        return m_bInSetup;
+    }
+
+    bool IsInWaitingForPlayers() const
+    {
+        return m_bInWaitingForPlayers;
+    }
 } __attribute__((packed));
+
+//-----------------------------------------------------------------------------
+// Gets us the team fortress game rules
+//-----------------------------------------------------------------------------
+inline CGameRules *TFGameRules()
+{
+    return static_cast<CGameRules *>(g_pGameRules);
+}
