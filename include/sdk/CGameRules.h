@@ -16,6 +16,8 @@
 
 #pragma once
 
+bool TF_IsHolidayActive(/*EHoliday*/ int eHoliday);
+
 class CGameRules
 {
 public:
@@ -88,27 +90,49 @@ public:
         k_nMatchGroup_Count
     };
 
-    char pad0[68];                              // 0    | 68 bytes   | 68
-    gamerules_roundstate_t m_iRoundState;       // 68   | 4 bytes    | 72
-    char pad1[1];                               // 72   | 1 byte     | 73
-    bool m_bInSetup;                            // 73   | 1 byte     | 74
-    char pad2[2];                               // 74   | 4 bytes    | 76
-    int m_iWinningTeam;                         // 76   | 4 bytes    | 80
-    char pad3[4];                               // 80   | 4 bytes    | 84
-    bool m_bInWaitingForPlayers;                // 84   | 1 byte     | 85
-    bool bool_pad0[3];                          // 85   | 3 bytes    | 88
-    char pad4[1037];                            // 88   | 1037 bytes | 1125
-    bool m_bPlayingSpecialDeliveryMode;         // 1125 | 1 byte     | 1126
-    bool m_bPlayingMannVsMachine;               // 1126 | 1 byte     | 1127
-    char bool_pad1[3];                          // 1127 | 3 bytes    | 1130
-    bool m_bCompetitiveMode;                    // 1130 | 1 byte     | 1131
-    char bool_pad2[3];                          // 1131 | 3 bytes    | 1134
-    char pad5[8];                               // 1134 | 8 bytes    | 1142
-    bool m_bIsUsingSpells;                      // 1142 | 1 byte     | 1143
-    bool m_bTruceActive;                        // 1143 | 1 byte     | 1144
-    char bool_pad3[2];                          // 1144 | 2 bytes    | 1146
-    char pad6[1062];                            // 1146 | 1062 bytes | 2208
-    HalloweenScenarioType m_halloweenScenario;  // 2208 | 4 bytes    | 2212
+    //-----------------------------------------------------------------------------
+    // List of holidays. These are sorted by priority. Needs to match static IIsHolidayActive *s_HolidayChecks
+    //-----------------------------------------------------------------------------
+    enum EHoliday
+    {
+        kHoliday_None = 0, // must stay at zero for backwards compatibility
+        kHoliday_TFBirthday,
+        kHoliday_Halloween,
+        kHoliday_Christmas,
+        kHoliday_CommunityUpdate,
+        kHoliday_EOTL,
+        kHoliday_Valentines,
+        kHoliday_MeetThePyro,
+        kHoliday_FullMoon,
+        kHoliday_HalloweenOrFullMoon,
+        kHoliday_HalloweenOrFullMoonOrValentines,
+        kHoliday_AprilFools,
+        kHolidayCount
+    };
+
+    char pad0[68];                             // 0    | 68 bytes   | 68
+    gamerules_roundstate_t m_iRoundState;      // 68   | 4 bytes    | 72
+    char pad1[1];                              // 72   | 1 byte     | 73
+    bool m_bInSetup;                           // 73   | 1 byte     | 74
+    char pad2[2];                              // 74   | 4 bytes    | 76
+    int m_iWinningTeam;                        // 76   | 4 bytes    | 80
+    char pad3[4];                              // 80   | 4 bytes    | 84
+    bool m_bInWaitingForPlayers;               // 84   | 1 byte     | 85
+    bool bool_pad0[3];                         // 85   | 3 bytes    | 88
+    char pad4[1037];                           // 88   | 1037 bytes | 1125
+    bool m_bPlayingSpecialDeliveryMode;        // 1125 | 1 byte     | 1126
+    bool m_bPlayingMannVsMachine;              // 1126 | 1 byte     | 1127
+    char bool_pad1[3];                         // 1127 | 3 bytes    | 1130
+    bool m_bCompetitiveMode;                   // 1130 | 1 byte     | 1131
+    char bool_pad2[3];                         // 1131 | 3 bytes    | 1134
+    char pad5[8];                              // 1134 | 8 bytes    | 1142
+    bool m_bIsUsingSpells;                     // 1142 | 1 byte     | 1143
+    bool m_bTruceActive;                       // 1143 | 1 byte     | 1144
+    char bool_pad3[2];                         // 1144 | 2 bytes    | 1146
+    char pad6[10];                             // 1146 | 10 bytes   | 1156
+    int m_nMapHolidayType;                     // 1156 | 4 bytes    | 1160
+    char pad7[1048];                           // 1160 | 1048 bytes | 2208
+    HalloweenScenarioType m_halloweenScenario; // 2208 | 4 bytes    | 2212
 
     int GetWinningTeam() const
     {
@@ -120,23 +144,23 @@ public:
         return m_iRoundState;
     }
 
-    bool RoundHasBeenWon()
+    bool RoundHasBeenWon() const
     {
         return State_Get() == GR_STATE_TEAM_WIN;
     }
 
-    bool InRoundRestart()
+    bool InRoundRestart() const
     {
         return State_Get() == GR_STATE_PREROUND;
     }
 
-    bool InStalemate()
+    bool InStalemate() const
     {
         return State_Get() == GR_STATE_STALEMATE;
     }
 
     // Return false if players aren't allowed to cap points at this time (i.e. in WaitingForPlayers)
-    bool PointsMayBeCaptured()
+    bool PointsMayBeCaptured() const
     {
         return (State_Get() == GR_STATE_RND_RUNNING || InStalemate()) && !IsInWaitingForPlayers();
     }
@@ -144,6 +168,11 @@ public:
     inline bool IsHalloweenScenario(HalloweenScenarioType scenario) const
     {
         return m_halloweenScenario == scenario;
+    }
+
+    bool IsHolidayActive(/*EHoliday*/ int eHoliday) const
+    {
+        return TF_IsHolidayActive(eHoliday);
     }
 
     bool IsUsingSpells() const
@@ -169,6 +198,11 @@ public:
         return m_bPlayingSpecialDeliveryMode;
     }
 
+    bool IsHolidayMap(int nHoliday) const
+    {
+        return m_nMapHolidayType == nHoliday;
+    }
+
     bool IsTruceActive() const
     {
         return m_bTruceActive;
@@ -183,6 +217,8 @@ public:
     {
         return m_bInWaitingForPlayers;
     }
+
+    HalloweenScenarioType GetHalloweenScenario() const;
 } __attribute__((packed));
 
 //-----------------------------------------------------------------------------

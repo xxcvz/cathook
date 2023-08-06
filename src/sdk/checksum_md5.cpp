@@ -7,8 +7,8 @@
 #include "basetypes.h"
 #include "commonmacros.h"
 #include "checksum_md5.h"
-#include <string.h>
-#include <stdio.h>
+#include <cstring>
+#include <cstdio>
 #include "tier1/strtools.h"
 #include "tier0/dbg.h"
 

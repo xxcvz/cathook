@@ -1,4 +1,5 @@
 set(files "${CMAKE_CURRENT_LIST_DIR}/basically_the_whole_mathlib.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/CGameRules.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/checksum_crc.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/checksum_md5.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/convar.cpp"

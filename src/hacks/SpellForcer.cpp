@@ -37,7 +37,7 @@ spelltypes getSpellMode()
     if (HasCondition<TFCond_HalloweenKart>(LOCAL_E))
         return BUMPER_CARS;
 
-    int scenario = TFGameRules()->m_halloweenScenario;
+    CGameRules::HalloweenScenarioType scenario = TFGameRules()->GetHalloweenScenario();
     switch (scenario)
     {
     case CGameRules::HALLOWEEN_SCENARIO_DOOMSDAY:
