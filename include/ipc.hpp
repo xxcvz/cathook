@@ -93,7 +93,7 @@ struct user_data_s
 
 using peer_t = cat_ipc::Peer<server_data_s, user_data_s>;
 
-extern std::unique_ptr<peer_t> peer;
+extern peer_t *peer;
 
 void update_mapname();
 
